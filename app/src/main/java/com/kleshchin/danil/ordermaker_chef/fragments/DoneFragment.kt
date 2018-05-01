@@ -33,7 +33,6 @@ class DoneFragment: Fragment(), MealAdapter.MealViewHolder.OnMealClickListener,
         }
         meals = mealList
         adapter = MealAdapter(meals)
-        adapter.setOnMealClickListener(this)
         linearLayoutManager = LinearLayoutManager(context)
         done_recycler_view.layoutManager = this.linearLayoutManager
         done_recycler_view.adapter = adapter

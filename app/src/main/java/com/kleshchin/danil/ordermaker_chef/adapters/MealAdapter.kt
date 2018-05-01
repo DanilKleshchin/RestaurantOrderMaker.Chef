@@ -39,12 +39,12 @@ class MealAdapter(private val mealList: ArrayList<Meal>) : RecyclerView.Adapter<
             fun onMealClick(meal: Meal?)
         }
 
+        init {
+            v.setOnClickListener(this)
+        }
+
         override fun onClick(v: View) {
-            when (v.id) {
-                R.id.meal_name -> {
-                    listener?.onMealClick(meal)
-                }
-            }
+            listener?.onMealClick(meal)
         }
 
         fun bindMeal(meal: Meal) {

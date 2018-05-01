@@ -1,7 +1,9 @@
 package com.kleshchin.danil.ordermaker_chef.fragments
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_queue.*
 /**
  * Created by Danil Kleshchin on 01-May-18.
  */
-class QueueFragment: Fragment(), MealAdapter.MealViewHolder.OnMealClickListener,
+class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener,
         OrderMakerRepository.OnReceiveMealInformationListener {
 
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -44,7 +46,17 @@ class QueueFragment: Fragment(), MealAdapter.MealViewHolder.OnMealClickListener,
     }
 
     override fun onMealClick(meal: Meal?) {
-        TODO("Show confirmation dialog")
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.dialog_title)
+        builder.setMessage(R.string.dialog_message)
+        builder.setPositiveButton(R.string.button_accept) { dialog, id ->
+            // User clicked OK button
+        }
+        builder.setNegativeButton(R.string.button_cancel) { dialog, id ->
+            // No need action
+        }
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
     }
 
     private fun changeRecyclerViewVisibility() {
