@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Мобильное меню. Шеф-повар</string>
+    <string name="progress_empty_text_view">Пока ниодин заказ не выполняется</string>
+    <string name="done_empty_text_view">Пока нет готовых заказов</string>
+</resources>
