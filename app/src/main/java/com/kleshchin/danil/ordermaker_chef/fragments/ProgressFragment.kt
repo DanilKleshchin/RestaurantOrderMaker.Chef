@@ -2,11 +2,12 @@ package com.kleshchin.danil.ordermaker_chef.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.kleshchin.danil.ordermaker_chef.OrderMakerRepository
+import com.kleshchin.danil.ordermaker_chef.OrderProcessor
 import com.kleshchin.danil.ordermaker_chef.R
 import com.kleshchin.danil.ordermaker_chef.adapters.MealAdapter
 import com.kleshchin.danil.ordermaker_chef.models.Meal
@@ -15,32 +16,49 @@ import kotlinx.android.synthetic.main.fragment_progress.*
 /**
  * Created by Danil Kleshchin on 01-May-18.
  */
-class ProgressFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener {
+class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickListener,
+        OrderProcessor.OnQueueOrderStatusChangedListener {
 
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter: MealAdapter
     private var meals: ArrayList<Meal> = ArrayList()
+    private val orderProcessor = OrderProcessor
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        orderProcessor.setOnQueueOrderStatusChangedListener(this)
         val view = inflater?.inflate(R.layout.fragment_progress, container, false)
         return view
     }
 
-    fun onMealReceive(mealList: ArrayList<Meal>?) {
-        if (mealList == null || mealList.isEmpty()) {
-            return
+    override fun onMealClick(meal: Meal?) {
+        val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        builder.setTitle(R.string.dialog_title)
+        builder.setMessage(R.string.dialog_message_done)
+        builder.setPositiveButton(R.string.button_accept) { dialog, id ->
+            if (meal != null) {
+                orderProcessor.changeProgressOrderStatus(meal)
+                meals.remove(meal)
+                (progress_recycler_view.adapter as MealAdapter).setMealList(meals)
+                if (meals.isEmpty()) {
+                    changeRecyclerViewVisibility()
+                }
+            }
         }
-        meals = mealList
+        builder.setNegativeButton(R.string.button_cancel) { dialog, id ->
+            // No need action
+        }
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
+
+    override fun onQueueOrderStatusChanged(meal: Meal) {
+        meals.add(meal)
         adapter = MealAdapter(meals)
         adapter.setOnMealClickListener(this)
         linearLayoutManager = LinearLayoutManager(context)
         progress_recycler_view.layoutManager = this.linearLayoutManager
         progress_recycler_view.adapter = adapter
         changeRecyclerViewVisibility()
-    }
-
-    override fun onMealClick(meal: Meal?) {
-        TODO("Show confirmation dialog")
     }
 
     private fun changeRecyclerViewVisibility() {

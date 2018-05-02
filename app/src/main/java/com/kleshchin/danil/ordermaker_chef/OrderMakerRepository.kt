@@ -27,7 +27,6 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
     private val CATEGORY_CODE = 0
     private val MEAL_CODE = 1
     private val TAG = "OrderMakerRepository"
-    private val OKHTTP_TAG = "OrderMakerRepository"
     private val SERVER_ADDRESS = "http://192.168.0.103:3000"
 
     private var categoryListener: OnReceiveCategoryInformationListener? = null
@@ -45,16 +44,6 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
     fun setOnReceiveMealInformationListener(context: Context, listener: OnReceiveMealInformationListener) {
         OrderMakerRepository.context = WeakReference(context)
         mealListener = listener
-    }
-
-    fun setOnReceiveCategoryInformationListener(context: Context, listener: OnReceiveCategoryInformationListener) {
-        OrderMakerRepository.context = WeakReference(context)
-        categoryListener = listener
-    }
-
-    fun loadCategory() {
-        val categoryLoader = InfoDownloader(InfoDownloader.Models.Category)
-        categoryLoader.execute()
     }
 
     fun loadMeal() {
@@ -130,13 +119,13 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
                 var responses: Response? = null
                 try {
                     responses = client.newCall(request).execute()
-                    Log.i(OKHTTP_TAG, "Load url " + url)
+                    Log.i(TAG, "Load url " + url)
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
                 val categoryList: ArrayList<CategoryMeal> = ArrayList()
                 val jsonData = responses?.body()?.string()
-                Log.i(OKHTTP_TAG, jsonData)
+                Log.i(TAG, jsonData)
                 val jsonArray = JSONArray(jsonData)
                 for (i in 0..(jsonArray.length() - 1)) {
                     val jsonObject = jsonArray.getJSONObject(i)
@@ -163,13 +152,13 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
                 var responses: Response? = null
                 try {
                     responses = client.newCall(request).execute()
-                    Log.i(OKHTTP_TAG, "Load url " + url)
+                    Log.i(TAG, "Load url " + url)
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
                 val mealList: ArrayList<Meal> = ArrayList()
                 val jsonData = responses?.body()?.string()
-                Log.i(OKHTTP_TAG, jsonData)
+                Log.i(TAG, jsonData)
                 val jsonArray = JSONArray(jsonData)
                 for (i in 0..(jsonArray.length() - 1)) {
                     val jsonObject = jsonArray.getJSONObject(i)

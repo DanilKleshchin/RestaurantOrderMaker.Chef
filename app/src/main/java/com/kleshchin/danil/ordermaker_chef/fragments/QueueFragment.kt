@@ -1,6 +1,5 @@
 package com.kleshchin.danil.ordermaker_chef.fragments
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
@@ -9,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.kleshchin.danil.ordermaker_chef.OrderMakerRepository
+import com.kleshchin.danil.ordermaker_chef.OrderProcessor
 import com.kleshchin.danil.ordermaker_chef.R
 import com.kleshchin.danil.ordermaker_chef.adapters.MealAdapter
 import com.kleshchin.danil.ordermaker_chef.models.Meal
@@ -23,6 +23,7 @@ class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter: MealAdapter
     private var meals: ArrayList<Meal> = ArrayList()
+    private val orderProcessor = OrderProcessor
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater?.inflate(R.layout.fragment_queue, container, false)
@@ -48,9 +49,13 @@ class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener
     override fun onMealClick(meal: Meal?) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.dialog_title)
-        builder.setMessage(R.string.dialog_message)
+        builder.setMessage(R.string.dialog_message_progress)
         builder.setPositiveButton(R.string.button_accept) { dialog, id ->
-            // User clicked OK button
+            if (meal != null) {
+                orderProcessor.changeQueueOrderStatus(meal)
+                meals.remove(meal)
+                (queue_recycler_view.adapter as MealAdapter).setMealList(meals)
+            }
         }
         builder.setNegativeButton(R.string.button_cancel) { dialog, id ->
             // No need action

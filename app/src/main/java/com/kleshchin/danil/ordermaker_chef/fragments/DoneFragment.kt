@@ -6,7 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.kleshchin.danil.ordermaker_chef.OrderMakerRepository
+import com.kleshchin.danil.ordermaker_chef.OrderProcessor
 import com.kleshchin.danil.ordermaker_chef.R
 import com.kleshchin.danil.ordermaker_chef.adapters.MealAdapter
 import com.kleshchin.danil.ordermaker_chef.models.Meal
@@ -15,32 +15,26 @@ import kotlinx.android.synthetic.main.fragment_done.*
 /**
  * Created by Danil Kleshchin on 01-May-18.
  */
-class DoneFragment: Fragment(), MealAdapter.MealViewHolder.OnMealClickListener,
-        OrderMakerRepository.OnReceiveMealInformationListener {
+class DoneFragment: Fragment(), OrderProcessor.OnProgressOrderStatusChangedListener {
 
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter: MealAdapter
     private var meals: ArrayList<Meal> = ArrayList()
+    private val orderProcessor = OrderProcessor
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        orderProcessor.setOnProgressOrderStatusChangedListener(this)
         val view = inflater?.inflate(R.layout.fragment_done, container, false)
         return view
     }
 
-    override fun onMealReceive(mealList: ArrayList<Meal>?) {
-        if (mealList == null || mealList.isEmpty()) {
-            return
-        }
-        meals = mealList
+    override fun onProgressOrderStatusChanged(meal: Meal) {
+        meals.add(meal)
         adapter = MealAdapter(meals)
         linearLayoutManager = LinearLayoutManager(context)
         done_recycler_view.layoutManager = this.linearLayoutManager
         done_recycler_view.adapter = adapter
         changeRecyclerViewVisibility()
-    }
-
-    override fun onMealClick(meal: Meal?) {
-        TODO("Show confirmation dialog")
     }
 
     private fun changeRecyclerViewVisibility() {

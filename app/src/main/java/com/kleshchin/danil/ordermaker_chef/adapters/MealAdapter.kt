@@ -9,7 +9,7 @@ import com.kleshchin.danil.ordermaker_chef.utils.inflate
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_meal_recycler_view.view.*
 
-class MealAdapter(private val mealList: ArrayList<Meal>) : RecyclerView.Adapter<MealAdapter.MealViewHolder>() {
+class MealAdapter(private var mealList: ArrayList<Meal>) : RecyclerView.Adapter<MealAdapter.MealViewHolder>() {
 
 
     private var listener: MealViewHolder.OnMealClickListener? = null
@@ -18,7 +18,7 @@ class MealAdapter(private val mealList: ArrayList<Meal>) : RecyclerView.Adapter<
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MealViewHolder {
         val inflatedView = parent.inflate(R.layout.item_meal_recycler_view, false)
-        return MealViewHolder(inflatedView, listener!!)
+        return MealViewHolder(inflatedView, listener)
     }
 
     override fun onBindViewHolder(holder: MealViewHolder, position: Int) {
@@ -30,10 +30,14 @@ class MealAdapter(private val mealList: ArrayList<Meal>) : RecyclerView.Adapter<
         this.listener = listener
     }
 
-    class MealViewHolder(v: View, listener: OnMealClickListener) : RecyclerView.ViewHolder(v), View.OnClickListener {
+    fun setMealList(mealList: ArrayList<Meal>) {
+        this.mealList = mealList
+        notifyDataSetChanged()
+    }
+
+    class MealViewHolder(v: View, private var listener: OnMealClickListener?) : RecyclerView.ViewHolder(v), View.OnClickListener {
         private var view: View = v
         private var meal: Meal? = null
-        private var listener: OnMealClickListener? = listener
 
         interface OnMealClickListener {
             fun onMealClick(meal: Meal?)
@@ -44,7 +48,9 @@ class MealAdapter(private val mealList: ArrayList<Meal>) : RecyclerView.Adapter<
         }
 
         override fun onClick(v: View) {
-            listener?.onMealClick(meal)
+            if (listener != null) {
+                listener!!.onMealClick(meal)
+            }
         }
 
         fun bindMeal(meal: Meal) {

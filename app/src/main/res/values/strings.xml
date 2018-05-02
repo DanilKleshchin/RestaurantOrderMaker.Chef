@@ -1,9 +1,10 @@
 <resources>
     <string name="app_name">Мобильное меню. Шеф-повар</string>
-    <string name="progress_empty_text_view">Пока ниодин заказ не выполняется</string>
+    <string name="progress_empty_text_view">Пока ни один заказ не выполняется</string>
     <string name="done_empty_text_view">Пока нет готовых заказов</string>
     <string name="button_accept">Подтвердить</string>
     <string name="button_cancel">Отмена</string>
-    <string name="dialog_message">Заказ в процессе?</string>
+    <string name="dialog_message_progress">Заказ в процессе?</string>
+    <string name="dialog_message_done">Заказ готов?</string>
     <string name="dialog_title">Внимание</string>
 </resources>
