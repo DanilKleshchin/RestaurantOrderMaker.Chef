@@ -9,6 +9,7 @@ import android.support.v4.content.CursorLoader
 import android.support.v4.content.Loader
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
 import com.kleshchin.danil.ordermaker_chef.models.CategoryMeal
 import com.kleshchin.danil.ordermaker_chef.models.Meal
 import com.kleshchin.danil.ordermaker_chef.provider.DatabaseHelper
@@ -27,7 +28,7 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
     private val CATEGORY_CODE = 0
     private val MEAL_CODE = 1
     private val TAG = "OrderMakerRepository"
-    private val SERVER_ADDRESS = "http://192.168.0.103:3000"
+    private val SERVER_ADDRESS = "http://192.168.0.102:3000"
 
     private var categoryListener: OnReceiveCategoryInformationListener? = null
     private var mealListener: OnReceiveMealInformationListener? = null
@@ -122,6 +123,7 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
                     Log.i(TAG, "Load url " + url)
                 } catch (e: IOException) {
                     e.printStackTrace()
+                    return
                 }
                 val categoryList: ArrayList<CategoryMeal> = ArrayList()
                 val jsonData = responses?.body()?.string()
@@ -155,6 +157,7 @@ object OrderMakerRepository : LoaderManager.LoaderCallbacks<Cursor> {
                     Log.i(TAG, "Load url " + url)
                 } catch (e: IOException) {
                     e.printStackTrace()
+                    return
                 }
                 val mealList: ArrayList<Meal> = ArrayList()
                 val jsonData = responses?.body()?.string()

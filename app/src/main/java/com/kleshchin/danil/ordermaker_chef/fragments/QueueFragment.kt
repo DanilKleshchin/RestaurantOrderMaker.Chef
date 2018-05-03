@@ -20,17 +20,24 @@ import kotlinx.android.synthetic.main.fragment_queue.*
 class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener,
         OrderMakerRepository.OnReceiveMealInformationListener {
 
+    private val KEY_SAVE_INSTANCE_BUNDLE = "KEY_SAVE_INSTANCE_BUNDLE"
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter: MealAdapter
     private var meals: ArrayList<Meal> = ArrayList()
-    private val orderProcessor = OrderProcessor
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater?.inflate(R.layout.fragment_queue, container, false)
-        val repository = OrderMakerRepository
-        repository.setOnReceiveMealInformationListener(inflater!!.context, this)
-        repository.loadMeal()
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val meals = OrderProcessor.getQueueMeals()
+        if (meals == null || meals.isEmpty()) {
+            loadMealInfo()
+        } else {
+            onMealReceive(meals)
+        }
     }
 
     override fun onMealReceive(mealList: ArrayList<Meal>?) {
@@ -38,6 +45,7 @@ class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener
             return
         }
         meals = mealList
+        OrderProcessor.setQueueMeals(meals)
         adapter = MealAdapter(meals)
         adapter.setOnMealClickListener(this)
         linearLayoutManager = LinearLayoutManager(context)
@@ -52,9 +60,10 @@ class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener
         builder.setMessage(R.string.dialog_message_progress)
         builder.setPositiveButton(R.string.button_accept) { dialog, id ->
             if (meal != null) {
-                orderProcessor.changeQueueOrderStatus(meal)
+                OrderProcessor.changeQueueOrderStatus(meal)
                 meals.remove(meal)
                 (queue_recycler_view.adapter as MealAdapter).setMealList(meals)
+                OrderProcessor.setQueueMeals(meals)
             }
         }
         builder.setNegativeButton(R.string.button_cancel) { dialog, id ->
@@ -62,6 +71,12 @@ class QueueFragment : Fragment(), MealAdapter.MealViewHolder.OnMealClickListener
         }
         val dialog: AlertDialog = builder.create()
         dialog.show()
+    }
+
+    private fun loadMealInfo() {
+        val repository = OrderMakerRepository
+        repository.setOnReceiveMealInformationListener(activity, this)
+        repository.loadMeal()
     }
 
     private fun changeRecyclerViewVisibility() {

@@ -22,12 +22,19 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
     private lateinit var linearLayoutManager: LinearLayoutManager
     private lateinit var adapter: MealAdapter
     private var meals: ArrayList<Meal> = ArrayList()
-    private val orderProcessor = OrderProcessor
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        orderProcessor.setOnQueueOrderStatusChangedListener(this)
+        OrderProcessor.setOnQueueOrderStatusChangedListener(this)
         val view = inflater?.inflate(R.layout.fragment_progress, container, false)
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val meals = OrderProcessor.getProgressMeals()
+        if (meals != null && !meals.isEmpty()) {
+            onMealReceive(meals)
+        }
     }
 
     override fun onMealClick(meal: Meal?) {
@@ -36,8 +43,9 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
         builder.setMessage(R.string.dialog_message_done)
         builder.setPositiveButton(R.string.button_accept) { dialog, id ->
             if (meal != null) {
-                orderProcessor.changeProgressOrderStatus(meal)
+                OrderProcessor.changeProgressOrderStatus(meal)
                 meals.remove(meal)
+                OrderProcessor.setProgressMeals(meals)
                 (progress_recycler_view.adapter as MealAdapter).setMealList(meals)
                 if (meals.isEmpty()) {
                     changeRecyclerViewVisibility()
@@ -53,6 +61,21 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
 
     override fun onQueueOrderStatusChanged(meal: Meal) {
         meals.add(meal)
+        OrderProcessor.setProgressMeals(meals)
+        adapter = MealAdapter(meals)
+        adapter.setOnMealClickListener(this)
+        linearLayoutManager = LinearLayoutManager(context)
+        progress_recycler_view.layoutManager = this.linearLayoutManager
+        progress_recycler_view.adapter = adapter
+        changeRecyclerViewVisibility()
+    }
+
+    private fun onMealReceive(mealList: ArrayList<Meal>?) {
+        if (mealList == null || mealList.isEmpty()) {
+            return
+        }
+        meals = mealList
+        OrderProcessor.setProgressMeals(meals)
         adapter = MealAdapter(meals)
         adapter.setOnMealClickListener(this)
         linearLayoutManager = LinearLayoutManager(context)
@@ -62,7 +85,7 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
     }
 
     private fun changeRecyclerViewVisibility() {
-        if (progress_recycler_view.visibility == View.VISIBLE) {
+        if (meals.isEmpty()) {
             progress_recycler_view.visibility = View.GONE
             progress_empty_view.visibility = View.VISIBLE
         } else {
