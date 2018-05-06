@@ -9,19 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import com.kleshchin.danil.ordermaker_chef.OrderProcessor
 import com.kleshchin.danil.ordermaker_chef.R
-import com.kleshchin.danil.ordermaker_chef.adapters.MealAdapter
-import com.kleshchin.danil.ordermaker_chef.models.Meal
+import com.kleshchin.danil.ordermaker_chef.adapters.OrderAdapter
+import com.kleshchin.danil.ordermaker_chef.models.Order
 import kotlinx.android.synthetic.main.fragment_progress.*
 
 /**
  * Created by Danil Kleshchin on 01-May-18.
  */
-class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickListener,
+class ProgressFragment : Fragment(),  OrderAdapter.MealViewHolder.OnOrderClickListener,
         OrderProcessor.OnQueueOrderStatusChangedListener {
 
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private lateinit var adapter: MealAdapter
-    private var meals: ArrayList<Meal> = ArrayList()
+    private lateinit var adapter: OrderAdapter
+    private var orders: ArrayList<Order> = ArrayList()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         OrderProcessor.setOnQueueOrderStatusChangedListener(this)
@@ -31,23 +31,24 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
 
     override fun onResume() {
         super.onResume()
-        val meals = OrderProcessor.getProgressMeals()
+        val meals = OrderProcessor.getProgressOrder()
         if (meals != null && !meals.isEmpty()) {
             onMealReceive(meals)
         }
     }
 
-    override fun onMealClick(meal: Meal?) {
+    override fun onOrderClick(order: Order?) {
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.setTitle(R.string.dialog_title)
         builder.setMessage(R.string.dialog_message_done)
         builder.setPositiveButton(R.string.button_accept) { dialog, id ->
-            if (meal != null) {
-                OrderProcessor.changeProgressOrderStatus(meal)
-                meals.remove(meal)
-                OrderProcessor.setProgressMeals(meals)
-                (progress_recycler_view.adapter as MealAdapter).setMealList(meals)
-                if (meals.isEmpty()) {
+            if (order != null) {
+                OrderProcessor.changeProgressOrderStatus(order)
+                orders.remove(order)
+                order.status = Order.OrderStatus.Done
+                OrderProcessor.setProgressOrder(orders)
+                (progress_recycler_view.adapter as OrderAdapter).setOrderList(orders)
+                if (orders.isEmpty()) {
                     changeRecyclerViewVisibility()
                 }
             }
@@ -59,10 +60,10 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
         dialog.show()
     }
 
-    override fun onQueueOrderStatusChanged(meal: Meal) {
-        meals.add(meal)
-        OrderProcessor.setProgressMeals(meals)
-        adapter = MealAdapter(meals)
+    override fun onQueueOrderStatusChanged(order: Order) {
+        orders.add(order)
+        OrderProcessor.setProgressOrder(orders)
+        adapter = OrderAdapter(orders)
         adapter.setOnMealClickListener(this)
         linearLayoutManager = LinearLayoutManager(context)
         progress_recycler_view.layoutManager = this.linearLayoutManager
@@ -70,13 +71,13 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
         changeRecyclerViewVisibility()
     }
 
-    private fun onMealReceive(mealList: ArrayList<Meal>?) {
-        if (mealList == null || mealList.isEmpty()) {
+    private fun onMealReceive(orderList: ArrayList<Order>?) {
+        if (orderList == null || orderList.isEmpty()) {
             return
         }
-        meals = mealList
-        OrderProcessor.setProgressMeals(meals)
-        adapter = MealAdapter(meals)
+        orders = orderList
+        OrderProcessor.setProgressOrder(orders)
+        adapter = OrderAdapter(orders)
         adapter.setOnMealClickListener(this)
         linearLayoutManager = LinearLayoutManager(context)
         progress_recycler_view.layoutManager = this.linearLayoutManager
@@ -85,7 +86,7 @@ class ProgressFragment : Fragment(),  MealAdapter.MealViewHolder.OnMealClickList
     }
 
     private fun changeRecyclerViewVisibility() {
-        if (meals.isEmpty()) {
+        if (orders.isEmpty()) {
             progress_recycler_view.visibility = View.GONE
             progress_empty_view.visibility = View.VISIBLE
         } else {

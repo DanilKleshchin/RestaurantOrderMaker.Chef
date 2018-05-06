@@ -18,7 +18,6 @@ class OrderMakerProvider : ContentProvider() {
     private val URI_MATCHER = UriMatcher(UriMatcher.NO_MATCH)
 
     init {
-        URI_MATCHER.addURI(AUTHORITY, DatabaseHelper.CATEGORY_TABLE, TABLE_CATEGORY_CODE)
         URI_MATCHER.addURI(AUTHORITY, DatabaseHelper.MEAL_TABLE, TABLE_MEAL_CODE)
     }
 
@@ -43,7 +42,6 @@ class OrderMakerProvider : ContentProvider() {
         val builder = SQLiteQueryBuilder()
         val cursor: Cursor
         when (URI_MATCHER.match(p0)) {
-            TABLE_CATEGORY_CODE -> builder.tables = DatabaseHelper.CATEGORY_TABLE
             TABLE_MEAL_CODE -> builder.tables = DatabaseHelper.MEAL_TABLE
             else -> throw IllegalArgumentException("uri not recognized!")
         }
@@ -58,7 +56,6 @@ class OrderMakerProvider : ContentProvider() {
     override fun insert(p0: Uri?, p1: ContentValues?): Uri {
         var table = ""
         when (URI_MATCHER.match(p0)) {
-            TABLE_CATEGORY_CODE -> table = DatabaseHelper.CATEGORY_TABLE
             TABLE_MEAL_CODE -> table = DatabaseHelper.MEAL_TABLE
         }
         val result = dbHelper_.writableDatabase.insertWithOnConflict(table, null, p1, SQLiteDatabase.CONFLICT_REPLACE)
@@ -69,7 +66,6 @@ class OrderMakerProvider : ContentProvider() {
         database_ = dbHelper_.writableDatabase
         var table = ""
         when (URI_MATCHER.match(p0)) {
-            TABLE_CATEGORY_CODE -> table = DatabaseHelper.CATEGORY_TABLE
             TABLE_MEAL_CODE -> table = DatabaseHelper.MEAL_TABLE
         }
         return database_.delete(table, p1, p2)

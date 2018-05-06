@@ -1,33 +1,34 @@
 package com.kleshchin.danil.ordermaker_chef
 
-import com.kleshchin.danil.ordermaker_chef.models.Meal
+import com.kleshchin.danil.ordermaker_chef.models.Order
 
 /**
  * Created by Danil Kleshchin on 02-May-18.
  */
 object OrderProcessor {
 
-    private var queueMeals: ArrayList<Meal> = ArrayList()
-    private var progressMeals: ArrayList<Meal> = ArrayList()
-    private var doneMeals: ArrayList<Meal> = ArrayList()
+    private var progressOrders: ArrayList<Order> = ArrayList()
+    private var doneOrders: ArrayList<Order> = ArrayList()
 
     interface OnQueueOrderStatusChangedListener {
-        fun onQueueOrderStatusChanged(meal: Meal)
+        fun onQueueOrderStatusChanged(order: Order)
     }
 
     interface OnProgressOrderStatusChangedListener {
-        fun onProgressOrderStatusChanged(meal: Meal)
+        fun onProgressOrderStatusChanged(order: Order)
     }
 
     private lateinit var onQueueOrderStatusChangedListener: OnQueueOrderStatusChangedListener
     private lateinit var onProgressOrderStatusChangedListener: OnProgressOrderStatusChangedListener
 
-    fun changeQueueOrderStatus(meal: Meal) {
-        onQueueOrderStatusChangedListener.onQueueOrderStatusChanged(meal)
+    fun changeQueueOrderStatus(order: Order) {
+        onQueueOrderStatusChangedListener.onQueueOrderStatusChanged(order)
+        OrderMakerRepository.sendOrderStatus(order)
     }
 
-    fun changeProgressOrderStatus(meal: Meal) {
-        onProgressOrderStatusChangedListener.onProgressOrderStatusChanged(meal)
+    fun changeProgressOrderStatus(order: Order) {
+        onProgressOrderStatusChangedListener.onProgressOrderStatusChanged(order)
+        OrderMakerRepository.sendOrderStatus(order)
     }
 
     fun setOnQueueOrderStatusChangedListener(listener: OnQueueOrderStatusChangedListener) {
@@ -38,27 +39,19 @@ object OrderProcessor {
         onProgressOrderStatusChangedListener = listener
     }
 
-    fun setQueueMeals(queueMeals: ArrayList<Meal>) {
-        this.queueMeals = queueMeals
+    fun setProgressOrder(progressMeals: ArrayList<Order>) {
+        this.progressOrders = progressMeals
     }
 
-    fun setProgressMeals(progressMeals: ArrayList<Meal>) {
-        this.progressMeals = progressMeals
+    fun setDoneOrder(doneMeals: ArrayList<Order>) {
+        this.doneOrders = doneMeals
     }
 
-    fun setDoneMeals(doneMeals: ArrayList<Meal>) {
-        this.doneMeals = doneMeals
+    fun getProgressOrder(): ArrayList<Order>? {
+        return this.progressOrders
     }
 
-    fun getQueueMeals(): ArrayList<Meal>? {
-        return this.queueMeals
-    }
-
-    fun getProgressMeals(): ArrayList<Meal>? {
-        return this.progressMeals
-    }
-
-    fun getDoneMeals(): ArrayList<Meal>? {
-        return this.doneMeals
+    fun getDoneOrder(): ArrayList<Order>? {
+        return this.doneOrders
     }
 }

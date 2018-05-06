@@ -8,8 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.kleshchin.danil.ordermaker_chef.OrderProcessor
 import com.kleshchin.danil.ordermaker_chef.R
-import com.kleshchin.danil.ordermaker_chef.adapters.MealAdapter
-import com.kleshchin.danil.ordermaker_chef.models.Meal
+import com.kleshchin.danil.ordermaker_chef.adapters.OrderAdapter
+import com.kleshchin.danil.ordermaker_chef.models.Order
 import kotlinx.android.synthetic.main.fragment_done.*
 
 /**
@@ -18,8 +18,8 @@ import kotlinx.android.synthetic.main.fragment_done.*
 class DoneFragment: Fragment(), OrderProcessor.OnProgressOrderStatusChangedListener {
 
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private lateinit var adapter: MealAdapter
-    private var meals: ArrayList<Meal> = ArrayList()
+    private lateinit var adapter: OrderAdapter
+    private var orders: ArrayList<Order> = ArrayList()
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         OrderProcessor.setOnProgressOrderStatusChangedListener(this)
@@ -29,29 +29,29 @@ class DoneFragment: Fragment(), OrderProcessor.OnProgressOrderStatusChangedListe
 
     override fun onResume() {
         super.onResume()
-        val meals = OrderProcessor.getDoneMeals()
+        val meals = OrderProcessor.getDoneOrder()
         if (meals != null && !meals.isEmpty()) {
             onMealReceive(meals)
         }
     }
 
-    override fun onProgressOrderStatusChanged(meal: Meal) {
-        meals.add(meal)
-        OrderProcessor.setDoneMeals(meals)
-        adapter = MealAdapter(meals)
+    override fun onProgressOrderStatusChanged(order: Order) {
+        orders.add(order)
+        OrderProcessor.setDoneOrder(orders)
+        adapter = OrderAdapter(orders)
         linearLayoutManager = LinearLayoutManager(context)
         done_recycler_view.layoutManager = this.linearLayoutManager
         done_recycler_view.adapter = adapter
         changeRecyclerViewVisibility()
     }
 
-    private fun onMealReceive(mealList: ArrayList<Meal>?) {
-        if (mealList == null || mealList.isEmpty()) {
+    private fun onMealReceive(orderList: ArrayList<Order>?) {
+        if (orderList == null || orderList.isEmpty()) {
             return
         }
-        meals = mealList
-        OrderProcessor.setDoneMeals(meals)
-        adapter = MealAdapter(meals)
+        orders = orderList
+        OrderProcessor.setDoneOrder(orders)
+        adapter = OrderAdapter(orders)
         linearLayoutManager = LinearLayoutManager(context)
         done_recycler_view.layoutManager = this.linearLayoutManager
         done_recycler_view.adapter = adapter
@@ -59,7 +59,7 @@ class DoneFragment: Fragment(), OrderProcessor.OnProgressOrderStatusChangedListe
     }
 
     private fun changeRecyclerViewVisibility() {
-        if (meals.isEmpty()) {
+        if (orders.isEmpty()) {
             done_recycler_view.visibility = View.GONE
             done_empty_view.visibility = View.VISIBLE
         } else {
